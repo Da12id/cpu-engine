@@ -39,7 +39,7 @@ void App::SpawnMissileWithMouse()
 	pMissile->transform.SetScaling(0.2f);
 	pMissile->transform.pos = ray.pos;
 	pMissile->transform.LookTo(ray.dir);
-	pMissile->transform.Move(1.5f);
+	pMissile->transform.Move(0.5f);        //change la distance de spawn avec la am des missile  
 	pMissile->pMaterial = &m_materialMissile;
 	m_missiles.push_back(pMissile);
 }
@@ -58,18 +58,20 @@ void App::OnStart()
 	// Resources
 	m_font.Create(cpuDevice.GetHeight()<=512 ? 14 : 28);
 	m_textureBird.Load("bird_amiga.png");
-	m_textureEarth.Load("earth.png");
+	m_textureEarth.Load("bird_amiga.png");//met les texture dans une variable
 	m_meshShip.CreateSpaceship();
 	m_meshMissile.CreateSphere(0.5f);
-	m_meshSphere.CreateSphere(2.0f, 12, 12);
+	m_meshSphere.CreateSphere(1.5f, 12, 12);
 	m_rts[0] = cpuEngine.CreateRT();
 
 	// UI
 	m_pSprite = cpuEngine.CreateSprite();
-	m_pSprite->pTexture = &m_textureBird;
+	m_pSprite->pTexture = &m_textureBird; //applique la texture
 	m_pSprite->CenterAnchor();
-	m_pSprite->x = 40;
+	m_pSprite->x = 100; //pos x de m_sprite
 	m_pSprite->y = 0;
+
+	//il y a 2 type de créature les Sprite et les entity
 
 	// Shader
 	m_materialShip.color = cpu::ToColor(255, 128, 0);
@@ -78,17 +80,17 @@ void App::OnStart()
 	m_materialEarth.pTexture = &m_textureEarth;
 
 	// 3D
-	m_missileSpeed = 10.0f;
+	m_missileSpeed = 50.f;
 	m_pEarth = cpuEngine.CreateEntity();
 	m_pEarth->pMesh = &m_meshSphere;
 	m_pEarth->pMaterial = &m_materialEarth;
 	m_pEarth->transform.pos.x = 3.0f;
-	m_pEarth->transform.pos.y = 3.0f;
-	m_pEarth->transform.pos.z = 5.0f;
+	m_pEarth->transform.pos.y = 9.0f;
+	m_pEarth->transform.pos.z = 15.0f;
 	m_pMoon = cpuEngine.CreateEntity();
 	m_pMoon->pMesh = &m_meshSphere;
 	m_pMoon->pMaterial = &m_materialMoon;
-	m_pMoon->transform.SetScaling(0.1f);
+	m_pMoon->transform.SetScaling(1.f);
 
 	// Ship
 	m_pShip = new Ship;
@@ -100,7 +102,7 @@ void App::OnStart()
 	cpuEngine.GetParticlePhysics()->gy = -0.5f;
 	m_pEmitter = cpuEngine.CreateParticleEmitter();
 	m_pEmitter->rate = 1.0f;
-	m_pEmitter->colorMin = cpu::ToColor(255, 0, 0);
+	m_pEmitter->colorMin = cpu::ToColor(0, 0, 255);
 	m_pEmitter->colorMax = cpu::ToColor(255, 128, 0);
 	m_pEmitter2 = cpuEngine.CreateParticleEmitter();
 	m_pEmitter2->rate = 0.25f;
@@ -128,7 +130,7 @@ void App::OnStart()
 	//pE->pMaterial->pTexture = &m_textureEarth;
 
 	// Camera
-	cpuEngine.GetCamera()->transform.pos.z = -5.0f;
+	cpuEngine.GetCamera()->transform.pos.z = -7.0f;
 }
 
 void App::OnUpdate()
@@ -139,13 +141,13 @@ void App::OnUpdate()
 	float time = cpuTime.total;
 
 	// Move sprite
-	m_pSprite->y = 60 + cpu::RoundToInt(sinf(time)*20.0f);
+	m_pSprite->y = 60 + cpu::RoundToInt(sinf(time)*40.0f);
 
 	// Turn earth
-	m_pEarth->transform.AddYPR(-dt);
+	m_pEarth->transform.AddYPR(0);
 
 	// Move rock
-	m_pMoon->transform.OrbitAroundAxis(m_pEarth->transform.pos, CPU_VEC3_UP, 3.0f, time*2.0f);
+	m_pMoon->transform.OrbitAroundAxis(m_pEarth->transform.pos, CPU_VEC3_UP, 8.f, time*2.0f);
 	m_pEmitter->pos = m_pMoon->transform.pos;
 	m_pEmitter->dir = m_pMoon->transform.dir;
 	m_pEmitter->dir.x = -m_pEmitter->dir.x; 
@@ -153,24 +155,24 @@ void App::OnUpdate()
 	m_pEmitter->dir.z = -m_pEmitter->dir.z; 
 
 	// Turn camera
-	cpuEngine.GetCamera()->transform.AddYPR(0.0f, 0.0f, dt*0.1f);
+	cpuEngine.GetCamera()->transform.AddYPR(0.f, 0.0f, dt*0.f);
 
 	// Move ship
-	if ( cpuInput.IsUp() )
+	/*if ( cpuInput.IsUp() )
 		cpuEngine.GetCamera()->transform.Move(dt*1.0f);
 	if ( cpuInput.IsDown() )
 		cpuEngine.GetCamera()->transform.Move(-dt*1.0f);
 	if ( cpuInput.IsLeft() )
 		cpuEngine.GetCamera()->transform.AddYPR(-dt*XM_PI);
 	if ( cpuInput.IsRight() )
-		cpuEngine.GetCamera()->transform.AddYPR(dt*XM_PI);
+		cpuEngine.GetCamera()->transform.AddYPR(dt*XM_PI);*/
 
 	// Move missiles
 	for ( auto it=m_missiles.begin() ; it!=m_missiles.end() ; ++it )
 	{
 		cpu_entity* pMissile = *it;
 		pMissile->transform.Move(dt*m_missileSpeed);
-		if ( pMissile->lifetime>10.0f )
+		if ( pMissile->lifetime>10.f )
 			cpuEngine.Release(pMissile);
 	}
 
@@ -307,10 +309,19 @@ void Ship::Update()
 	float dt = cpuTime.delta;
 
 	// Turn ship
-	m_pEntity->transform.AddYPR(dt, dt, dt);
+	//m_pEntity->transform.AddYPR(dt, dt, dt);
 
 	// Move ship
-	m_pEntity->transform.pos.z += dt * 1.0f;
+	//m_pEntity->transform.pos.z += dt * 1.0f;
+
+	if ( cpuInput.IsUp() )
+		m_pEntity->transform.Move(dt * 5.0f);
+	if ( cpuInput.IsDown() )
+		m_pEntity->transform.AddYPR(0, -dt * XM_PI);
+	if ( cpuInput.IsLeft() )
+		m_pEntity->transform.AddYPR(-dt * XM_PI);
+	if ( cpuInput.IsRight() )
+		m_pEntity->transform.AddYPR(dt*XM_PI);
 
 	// Fire
 	if ( cpuInput.vi.IsKey(VK_SPACE) )
