@@ -76,6 +76,9 @@ void App::OnUpdate()
 		m_pPlayer->GetEntity()->transform.OrbitAroundAxis(CenterRail, CPU_VEC3_UP, 4.f, time * 7.0f);
 	if (cpuInput.IsRight())
 		m_pPlayer->GetEntity()->transform.OrbitAroundAxis(CenterRail, CPU_VEC3_UP, 4.f, time * -7.0f);
+
+	cpu_hit hit;
+	cpu_entity* pEntity = cpuEngine.HitEntity(hit, m_pPlayer	);
 	
 	if (cpuInput.IsBackPressed())
 		cpuEngine.Quit();
