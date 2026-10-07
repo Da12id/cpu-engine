@@ -20,17 +20,26 @@ App::~App()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void App::SpawnRail()
+void App::SpawnFruit()
 {
-
+	cpu_entity* pFruit = cpuEngine.CreateEntity();
+	pFruit->pMesh = &m_meshFruit;
+	pFruit->transform.pos = CenterRail;
+	float angle = PickNumber(0, XM_2PI);
+	pFruit->transform.pos.x += cosf(angle) * 4.f;
+	pFruit->transform.pos.z += sinf(angle) * 4.f;
+	fruits.push_back(pFruit);
 }
 
 void App::OnStart()
 {
 	// YOUR CODE HERE
+	srand(time(nullptr));
+
 	m_meshPlayer.CreateSpaceship();
 	m_meshRail.CreateCircle(4.5f, 20, CPU_BLACK);
 	m_meshRailBis.CreateCircle(3.5f, 20, CPU_RED);
+	m_meshFruit.CreateSphere();
 
 	pRail = cpuEngine.CreateEntity();
 	pRail->pMesh = &m_meshRail;
@@ -49,6 +58,8 @@ void App::OnStart()
 	m_pPlayer->GetEntity()->transform.SetScaling(0.3f);
 	m_pPlayer->GetEntity()->transform.pos = CenterRail;
 	m_pPlayer->GetEntity()->transform.pos.z += 4.f;
+
+	SpawnFruit();
 
 	cpuEngine.GetCamera()->transform.pos.z = -10.0f;
 	cpuEngine.GetCamera()->transform.pos.y= 2.5f;
@@ -159,4 +170,10 @@ void StatePlayerIdle::OnExecute(Player& cur)
 void StatePlayerIdle::OnExit(Player& cur, int to)
 {
 
+}
+
+float App::PickNumber(int number, int total)
+{
+	number = rand() % (total - number + 1) + number;
+	return number;
 }

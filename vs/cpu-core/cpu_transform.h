@@ -46,5 +46,5 @@ public:
 	void AddYPR(float yaw, float pitch = 0.0f, float roll = 0.0f);
 	void LookAt(float x, float y, float z, const XMFLOAT3& up = CPU_VEC3_UP);
 	void LookTo(float ndx, float ndy, float ndz, const XMFLOAT3& up = CPU_VEC3_UP);
-	void LookTo(XMFLOAT3& ndir, const XMFLOAT3& up = CPU_VEC3_UP);
+	void LookTo(XMFLOAT3& ndir, const XMFLOAT3& up = CPU_VEC3_UP); 
 };

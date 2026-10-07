@@ -55,9 +55,11 @@ public:
 	void OnExit();
 	void OnRender(int pass);
 
-	void SpawnRail();
+	void SpawnFruit();
 
 	static void MyPixelShader(cpu_ps_io& io);
+
+	float PickNumber(int number, int total);
 
 private:
 	inline static App* s_pApp = nullptr;
@@ -67,11 +69,14 @@ private:
 	cpu_mesh m_meshPlayer;
 	cpu_mesh m_meshRail;
 	cpu_mesh m_meshRailBis;
+	cpu_mesh m_meshFruit;
 
 	cpu_material m_materialPlayer;
 	cpu_material m_materialRail;
+	cpu_material m_materialFruit;
 
 	Player* m_pPlayer;
 	cpu_entity* pRail;
 	cpu_entity* pRailBis;
+	std::vector<cpu_entity*> fruits;
 };
