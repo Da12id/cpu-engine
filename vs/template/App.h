@@ -1,30 +1,12 @@
 #pragma once
 
-class App
+class Rail
 {
 public:
-	App();
-	virtual ~App();
+	Rail();
+	~Rail();
 
-	static App& GetInstance() { return *s_pApp; }
-
-	void OnStart();
-	void OnUpdate();
-	void OnExit();
-	void OnRender(int pass);
-
-	static void MyPixelShader(cpu_ps_io& io);
-
-private:
-	inline static App* s_pApp = nullptr;
-
-	//cpu_font m_font;
-	cpu_mesh m_meshPlayer;
-	//cpu_rt* m_rts[1];
-
-	cpu_material m_materialPlayer;
-
-	Player* m_pPlayer = nullptr;
+	void Create(cpu_mesh* pMesh, cpu_material* pMaterial);
 };
 
 class Player
@@ -58,4 +40,38 @@ struct StatePlayerIdle
 	void OnEnter(Player& cur, int from, void* pParam);
 	void OnExecute(Player& cur);
 	void OnExit(Player& cur, int to);
+};
+
+class App
+{
+public:
+	App();
+	virtual ~App();
+
+	static App& GetInstance() { return *s_pApp; }
+
+	void OnStart();
+	void OnUpdate();
+	void OnExit();
+	void OnRender(int pass);
+
+	void SpawnRail();
+
+	static void MyPixelShader(cpu_ps_io& io);
+
+private:
+	inline static App* s_pApp = nullptr;
+
+	DirectX::XMFLOAT3 CenterRail;
+
+	cpu_mesh m_meshPlayer;
+	cpu_mesh m_meshRail;
+	cpu_mesh m_meshRailBis;
+
+	cpu_material m_materialPlayer;
+	cpu_material m_materialRail;
+
+	Player* m_pPlayer;
+	cpu_entity* pRail;
+	cpu_entity* pRailBis;
 };

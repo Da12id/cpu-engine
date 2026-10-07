@@ -20,29 +20,71 @@ App::~App()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void App::SpawnRail()
+{
+
+}
+
 void App::OnStart()
 {
 	// YOUR CODE HERE
+	m_meshPlayer.CreateSpaceship();
+	m_meshRail.CreateCircle(4.5f, 20, CPU_BLACK);
+	m_meshRailBis.CreateCircle(3.5f, 20, CPU_RED);
+
+	pRail = cpuEngine.CreateEntity();
+	pRail->pMesh = &m_meshRail;
+	pRail->transform.pos.z = 5.f;
+
+	pRailBis = cpuEngine.CreateEntity();
+	pRailBis->pMesh = &m_meshRailBis;
+	pRailBis->transform.pos.y = 0.1f;
+	pRailBis->transform.pos.z = 5.f;
+	
+	CenterRail = pRail->transform.pos;
 
 	m_pPlayer = new Player;
 	m_pPlayer->Create(&m_meshPlayer, &m_materialPlayer);
 	m_pPlayer->GetFSM()->ToState(CPU_ID(StatePlayerIdle));
+	m_pPlayer->GetEntity()->transform.SetScaling(0.3f);
+	m_pPlayer->GetEntity()->transform.pos = CenterRail;
+	m_pPlayer->GetEntity()->transform.pos.z += 4.f;
+
+	cpuEngine.GetCamera()->transform.pos.z = -10.0f;
+	cpuEngine.GetCamera()->transform.pos.y= 2.5f;
+
 }
 
 void App::OnUpdate()
 {
 	// YOUR CODE HERE
+	float dt = cpuTime.delta;
+	float time = cpuTime.total;
+
+	if (cpuInput.IsLeft())
+		m_pPlayer->GetEntity()->transform.OrbitAroundAxis(CenterRail, CPU_VEC3_UP, 4.f, time * 7.0f);
+	if (cpuInput.IsRight())
+		m_pPlayer->GetEntity()->transform.OrbitAroundAxis(CenterRail, CPU_VEC3_UP, 4.f, time * -7.0f);
+	
+	if (cpuInput.IsBackPressed())
+		cpuEngine.Quit();
 }
 
 void App::OnExit()
 {
 	// YOUR CODE HERE
+
+	if (m_pPlayer)
+		m_pPlayer->Destroy();
+	CPU_DELPTR(m_pPlayer);
 }
 
 void App::OnRender(int pass)
 {
 	// YOUR CODE HERE
+	
 }
+
 
 void App::MyPixelShader(cpu_ps_io& io)
 {
@@ -81,7 +123,14 @@ void Player::Destroy()
 
 void Player::Update()
 {
+	//float dt = cpuTime.delta;
 
+	//if (cpuInput.IsUp())
+	//	m_pEntity->transform.Move(dt * 5.0f);
+	//if (cpuInput.IsDown())
+	//	m_pEntity->transform.AddYPR(0, dt * XM_PI);
+	//if (cpuInput.IsRight())
+	//	m_pEntity->transform.AddYPR(dt * XM_PI);
 }
 
 void StatePlayerGlobal::OnEnter(Player& cur, int from, void* pParam)

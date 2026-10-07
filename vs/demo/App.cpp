@@ -40,7 +40,7 @@ void App::SpawnMissileWithMouse()
 	pMissile->transform.SetScaling(0.2f);
 	pMissile->transform.pos = ray.pos;
 	pMissile->transform.LookTo(ray.dir);
-	pMissile->transform.Move(0.5f);        //change la distance de spawn avec la am des missile  
+	pMissile->transform.Move(0.5f);        //change la distance de spawn avec la cam des missile  
 	pMissile->pMaterial = &m_materialMissile;
 	m_missiles.push_back(pMissile);
 }
@@ -159,14 +159,14 @@ void App::OnUpdate()
 	cpuEngine.GetCamera()->transform.AddYPR(0.f, 0.0f, dt*0.f);
 
 	// Move ship
-	/*if ( cpuInput.IsUp() )
-		cpuEngine.GetCamera()->transform.Move(dt*1.0f);
-	if ( cpuInput.IsDown() )
-		cpuEngine.GetCamera()->transform.Move(-dt*1.0f);
-	if ( cpuInput.IsLeft() )
-		cpuEngine.GetCamera()->transform.AddYPR(-dt*XM_PI);
-	if ( cpuInput.IsRight() )
-		cpuEngine.GetCamera()->transform.AddYPR(dt*XM_PI);*/
+	//if ( cpuInput.IsUp() )
+	//	cpuEngine.GetCamera()->transform.Move(dt*1.0f);
+	//if ( cpuInput.IsDown() )
+	//	cpuEngine.GetCamera()->transform.Move(-dt*1.0f);
+	//if ( cpuInput.IsLeft() )
+	//	cpuEngine.GetCamera()->transform.AddYPR(-dt*XM_PI);
+	//if ( cpuInput.IsRight() )
+	//	cpuEngine.GetCamera()->transform.AddYPR(dt*XM_PI);
 
 	// Move missiles
 	for ( auto it=m_missiles.begin() ; it!=m_missiles.end() ; ++it )
