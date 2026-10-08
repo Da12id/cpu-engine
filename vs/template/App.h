@@ -62,8 +62,9 @@ public:
 	float PickNumber(int number, int total);
 
 private:
-	inline static App* s_pApp = nullptr;
+	float m_angle = 0.f;
 
+	inline static App* s_pApp = nullptr;
 	DirectX::XMFLOAT3 CenterRail;
 
 	cpu_mesh m_meshPlayer;

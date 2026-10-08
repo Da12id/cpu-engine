@@ -73,12 +73,20 @@ void App::OnUpdate()
 	float time = cpuTime.total;
 
 	if (cpuInput.IsLeft())
-		m_pPlayer->GetEntity()->transform.OrbitAroundAxis(CenterRail, CPU_VEC3_UP, 4.f, time * 7.0f);
+	{
+		m_angle += dt * 3.5f;
+	}
 	if (cpuInput.IsRight())
-		m_pPlayer->GetEntity()->transform.OrbitAroundAxis(CenterRail, CPU_VEC3_UP, 4.f, time * -7.0f);
+	{
+		m_angle -= dt * 3.5f;
+	}
+
+	m_pPlayer->GetEntity()->transform.OrbitAroundAxis(CenterRail, CPU_VEC3_UP, 4.f, m_angle);
 
 	cpu_hit hit;
-	cpu_entity* pEntity = cpuEngine.HitEntity(hit, m_pPlayer	);
+	//cpu_entity* pEntity = cpuEngine.HitEntity(hit, m_pPlayer	);
+	//cpu_aabb* pAABB = pAABB->Contains()
+	//m_pPlayer->GetEntity()->aabb;
 	
 	if (cpuInput.IsBackPressed())
 		cpuEngine.Quit();
