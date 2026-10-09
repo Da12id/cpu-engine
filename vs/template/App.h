@@ -55,8 +55,6 @@ public:
 	void OnExit();
 	void OnRender(int pass);
 
-	void Pause();
-
 	void SpawnFruit();
 	void AddorSubstractPoint(cpu_entity* EntityinCollision, int indexFruits);
 
@@ -65,11 +63,15 @@ public:
 	float PickNumber(int number, int total);
 
 private:
+	float m_height;
+	float m_width;
+
 	float m_angle = 0.f;
 	int m_score = -1;
 	float m_gravity = 0.03f;
 	float dtFruit = 0;
 	float dtGravity = 0;
+	bool m_pause = false;
 
 	inline static App* s_pApp = nullptr;
 	cpu_font m_font;

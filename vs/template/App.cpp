@@ -24,9 +24,11 @@ void App::OnStart()
 {
 	// YOUR CODE HERE
 	srand(time(nullptr));
+	m_height = cpuDevice.GetHeight();
+	m_width = cpuDevice.GetWidth();
 	m_font.Create(cpuDevice.GetHeight() <= 512 ? 14 : 28);
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//m_meshSkyBox.CreateSkyBox(100, CPU_RED);//poourquoi ça fais laguer
+	//m_meshSkyBox.CreateSkyBox(50, CPU_RED);//poourquoi ça fais laguer
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	m_meshPlayer.CreateSpaceship();
 	m_meshRail.CreateCircle(4.5f, 20, CPU_BLACK);
@@ -69,50 +71,55 @@ void App::OnUpdate()
 	// YOUR CODE HERE
 	float dt = cpuTime.delta;
 	float time = cpuTime.total;
-
-
-
-	if (cpuInput.IsLeft())
+	if(m_pause == false)
 	{
-		m_angle += dt * 3.5f;
+		if (cpuInput.IsLeft())
+		{
+			m_angle += dt * 3.5f;
+		}
+		if (cpuInput.IsRight())
+		{
+			m_angle -= dt * 3.5f;
+		}
+			m_pPlayer->GetEntity()->transform.OrbitAroundAxis(CenterRail, CPU_VEC3_UP, 4.f, m_angle);
+
+
+			for (int x = 0; x < fruits.size(); x++)
+			{
+				fruits[x]->transform.pos.y -= m_gravity;
+
+				if (cpu::ObbObb(m_pPlayer->GetEntity()->obb, fruits[x]->obb))
+					AddorSubstractPoint(m_pPlayer->GetEntity(), x);
+
+				else if (cpu::ObbObb(pRail->obb, fruits[x]->obb))
+					AddorSubstractPoint(pRail, x);
+			}
+
+			dtFruit += dt;
+			dtGravity += dt;
+			if (dtFruit >= 10)
+			{
+				SpawnFruit();
+				dtFruit = 0;
+			}
+
+			if (dtGravity >= 30)
+			{
+				m_gravity += 0.01;
+				dtGravity = 0;
+			}
+
+			if(m_score<0)
+				cpuEngine.Quit();
 	}
-	if (cpuInput.IsRight())
-	{
-		m_angle -= dt * 3.5f;
-	}
-
-	m_pPlayer->GetEntity()->transform.OrbitAroundAxis(CenterRail, CPU_VEC3_UP, 4.f, m_angle);
-
-	for(int x = 0; x<fruits.size(); x++)
-	{
-		fruits[x]->transform.pos.y -= m_gravity;
-
-		if (cpu::ObbObb(m_pPlayer->GetEntity()->obb, fruits[x]->obb))
-			AddorSubstractPoint(m_pPlayer->GetEntity(), x);
-
-		else if(cpu::ObbObb(pRail->obb, fruits[x]->obb))
-			AddorSubstractPoint(pRail, x);
-	}
-
-	dtFruit += dt;
-	dtGravity += dt;
-	if (dtFruit >= 10)
-	{	
-		SpawnFruit();
-		dtFruit = 0;
-	}
-
-	if (dtGravity >= 30)
-	{
-		m_gravity += 0.01;
-		dtGravity = 0;
-	}
-
-	if(m_score<0)
-		cpuEngine.Quit();
 
 	if (cpuInput.IsBackPressed())
-		cpuEngine.Quit();
+	{
+		if (m_pause)
+			m_pause = false;
+		else
+			m_pause = true;
+	}
 }
 
 void App::OnExit()
@@ -127,23 +134,12 @@ void App::OnExit()
 void App::OnRender(int pass)
 {
 	// YOUR CODE HERE
-	std::string textScore;
-
-	if(m_score == 1)
-		textScore = CPU_STR(m_score) + " HEALTH POINT";
-	else
-		textScore = CPU_STR(m_score) + " HEALTH POINTS";
+	std::string textScore = CPU_STR(m_score) + "PV";
 
 	cpuDevice.DrawText(&m_font, textScore.c_str(), 10, 10);
-}
 
-void App::Pause()
-{
-	while (true)
-	{
-		if (cpuInput.IsBackPressed())
-			break;
-	}
+	if(m_pause)
+		cpuDevice.DrawText(&m_font, "PAUSE", m_width*0.5f -30, m_height * 0.5f);
 }
 
 void App::SpawnFruit()
@@ -210,14 +206,8 @@ void Player::Destroy()
 
 void Player::Update()
 {
-	//float dt = cpuTime.delta;
+	float dt = cpuTime.delta;
 
-	//if (cpuInput.IsUp())
-	//	m_pEntity->transform.Move(dt * 5.0f);
-	//if (cpuInput.IsDown())
-	//	m_pEntity->transform.AddYPR(0, dt * XM_PI);
-	//if (cpuInput.IsRight())
-	//	m_pEntity->transform.AddYPR(dt * XM_PI);
 }
 
 void StatePlayerGlobal::OnEnter(Player& cur, int from, void* pParam)
