@@ -63,10 +63,12 @@ public:
 
 private:
 	float m_angle = 0.f;
+	float m_score = 0;
 
 	inline static App* s_pApp = nullptr;
 	DirectX::XMFLOAT3 CenterRail;
 
+	cpu_mesh m_meshSkyBox;
 	cpu_mesh m_meshPlayer;
 	cpu_mesh m_meshRail;
 	cpu_mesh m_meshRailBis;
@@ -76,6 +78,7 @@ private:
 	cpu_material m_materialRail;
 	cpu_material m_materialFruit;
 
+	cpu_entity* pSkyBox;
 	Player* m_pPlayer;
 	cpu_entity* pRail;
 	cpu_entity* pRailBis;
