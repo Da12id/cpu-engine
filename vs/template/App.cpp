@@ -20,31 +20,21 @@ App::~App()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void App::SpawnFruit()
-{
-	cpu_entity* pFruit = cpuEngine.CreateEntity();
-	pFruit->pMesh = &m_meshFruit;
-	pFruit->transform.pos = CenterRail;
-	float angle = PickNumber(0, XM_2PI);
-	pFruit->transform.pos.x += cosf(angle) * 4.f;
-	pFruit->transform.pos.z += sinf(angle) * 4.f;
-	fruits.push_back(pFruit);
-}
-
 void App::OnStart()
 {
 	// YOUR CODE HERE
 	srand(time(nullptr));
+	m_font.Create(cpuDevice.GetHeight() <= 512 ? 14 : 28);
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	m_meshSkyBox.CreateSkyBox(100, CPU_RED);//poourquoi ça fais laguer
+	//m_meshSkyBox.CreateSkyBox(100, CPU_RED);//poourquoi ça fais laguer
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	m_meshPlayer.CreateSpaceship();
 	m_meshRail.CreateCircle(4.5f, 20, CPU_BLACK);
 	m_meshRailBis.CreateCircle(3.5f, 20, CPU_RED);
 	m_meshFruit.CreateSphere();
 
-	pSkyBox = cpuEngine.CreateEntity();
-	pSkyBox->pMesh = &m_meshSkyBox;
+	//pSkyBox = cpuEngine.CreateEntity();
+	//pSkyBox->pMesh = &m_meshSkyBox;
 
 	pRail = cpuEngine.CreateEntity();
 	pRail->pMesh = &m_meshRail;
@@ -62,12 +52,15 @@ void App::OnStart()
 	m_pPlayer->GetFSM()->ToState(CPU_ID(StatePlayerIdle));
 	m_pPlayer->GetEntity()->transform.SetScaling(0.3f);
 	m_pPlayer->GetEntity()->transform.pos = CenterRail;
+	CenterRail.y += 0.5f;
 	m_pPlayer->GetEntity()->transform.pos.z += 4.f;
+	m_pPlayer->GetEntity()->transform.pos.y += 0.5f;
 
 	SpawnFruit();
 
-	cpuEngine.GetCamera()->transform.pos.z = -10.0f;
-	cpuEngine.GetCamera()->transform.pos.y= 2.5f;
+	cpuEngine.GetCamera()->transform.pos.z = -6.0f;
+	cpuEngine.GetCamera()->transform.pos.y= 3.5f;
+	cpuEngine.GetCamera()->transform.SetYPR(0.f, 0.2f, 0.f);
 
 }
 
@@ -76,6 +69,8 @@ void App::OnUpdate()
 	// YOUR CODE HERE
 	float dt = cpuTime.delta;
 	float time = cpuTime.total;
+
+
 
 	if (cpuInput.IsLeft())
 	{
@@ -88,11 +83,34 @@ void App::OnUpdate()
 
 	m_pPlayer->GetEntity()->transform.OrbitAroundAxis(CenterRail, CPU_VEC3_UP, 4.f, m_angle);
 
-	cpu_hit hit;
-	//cpu_entity* pEntity = cpuEngine.HitEntity(hit, m_pPlayer	);
-	//cpu_aabb* pAABB = pAABB->Contains()
-	//m_pPlayer->GetEntity()->aabb;
-	
+	for(int x = 0; x<fruits.size(); x++)
+	{
+		fruits[x]->transform.pos.y -= m_gravity;
+
+		if (cpu::ObbObb(m_pPlayer->GetEntity()->obb, fruits[x]->obb))
+			AddorSubstractPoint(m_pPlayer->GetEntity(), x);
+
+		else if(cpu::ObbObb(pRail->obb, fruits[x]->obb))
+			AddorSubstractPoint(pRail, x);
+	}
+
+	dtFruit += dt;
+	dtGravity += dt;
+	if (dtFruit >= 10)
+	{	
+		SpawnFruit();
+		dtFruit = 0;
+	}
+
+	if (dtGravity >= 30)
+	{
+		m_gravity += 0.01;
+		dtGravity = 0;
+	}
+
+	if(m_score<0)
+		cpuEngine.Quit();
+
 	if (cpuInput.IsBackPressed())
 		cpuEngine.Quit();
 }
@@ -109,9 +127,51 @@ void App::OnExit()
 void App::OnRender(int pass)
 {
 	// YOUR CODE HERE
-	
+	std::string textScore;
+
+	if(m_score == 1)
+		textScore = CPU_STR(m_score) + " HEALTH POINT";
+	else
+		textScore = CPU_STR(m_score) + " HEALTH POINTS";
+
+	cpuDevice.DrawText(&m_font, textScore.c_str(), 10, 10);
 }
 
+void App::Pause()
+{
+	while (true)
+	{
+		if (cpuInput.IsBackPressed())
+			break;
+	}
+}
+
+void App::SpawnFruit()
+{
+	if (fruits.size() > 4)
+		return;
+
+	cpu_entity* pFruit = cpuEngine.CreateEntity();
+	pFruit->pMesh = &m_meshFruit;
+	pFruit->transform.pos = CenterRail;
+	float angle = PickNumber(0, XM_2PI);
+	pFruit->transform.pos.x += cosf(angle) * 4.f;
+	pFruit->transform.pos.z += sinf(angle) * 4.f;
+	pFruit->transform.pos.y = 10.f;
+	fruits.push_back(pFruit);
+}
+
+void App::AddorSubstractPoint(cpu_entity* EntityinCollision, int indexFruits)
+{
+	if (EntityinCollision == m_pPlayer->GetEntity())
+		m_score++;
+	else
+		m_score--;
+	
+	fruits[indexFruits]->active = false;
+	fruits.erase(fruits.begin() + indexFruits);
+	SpawnFruit();
+}
 
 void App::MyPixelShader(cpu_ps_io& io)
 {

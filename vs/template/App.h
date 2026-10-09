@@ -55,7 +55,10 @@ public:
 	void OnExit();
 	void OnRender(int pass);
 
+	void Pause();
+
 	void SpawnFruit();
+	void AddorSubstractPoint(cpu_entity* EntityinCollision, int indexFruits);
 
 	static void MyPixelShader(cpu_ps_io& io);
 
@@ -63,9 +66,14 @@ public:
 
 private:
 	float m_angle = 0.f;
-	float m_score = 0;
+	int m_score = -1;
+	float m_gravity = 0.03f;
+	float dtFruit = 0;
+	float dtGravity = 0;
 
 	inline static App* s_pApp = nullptr;
+	cpu_font m_font;
+
 	DirectX::XMFLOAT3 CenterRail;
 
 	cpu_mesh m_meshSkyBox;
