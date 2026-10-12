@@ -78,6 +78,7 @@ private:
 
 	DirectX::XMFLOAT3 CenterRail;
 
+
 	cpu_mesh m_meshSkyBox;
 	cpu_mesh m_meshPlayer;
 	cpu_mesh m_meshRail;

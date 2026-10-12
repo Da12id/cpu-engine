@@ -81,36 +81,38 @@ void App::OnUpdate()
 		{
 			m_angle -= dt * 3.5f;
 		}
-			m_pPlayer->GetEntity()->transform.OrbitAroundAxis(CenterRail, CPU_VEC3_UP, 4.f, m_angle);
+		m_pPlayer->GetEntity()->transform.OrbitAroundAxis(CenterRail, CPU_VEC3_UP, 4.f, m_angle);
 
+		for (int x = 0; x < fruits.size(); x++)
+		{
+			fruits[x]->transform.pos.y -= m_gravity;
 
-			for (int x = 0; x < fruits.size(); x++)
-			{
-				fruits[x]->transform.pos.y -= m_gravity;
+			if (cpu::ObbObb(m_pPlayer->GetEntity()->obb, fruits[x]->obb))
+				AddorSubstractPoint(m_pPlayer->GetEntity(), x);
 
-				if (cpu::ObbObb(m_pPlayer->GetEntity()->obb, fruits[x]->obb))
-					AddorSubstractPoint(m_pPlayer->GetEntity(), x);
+			else if (cpu::ObbObb(pRail->obb, fruits[x]->obb))
+				AddorSubstractPoint(pRail, x);
+		}
 
-				else if (cpu::ObbObb(pRail->obb, fruits[x]->obb))
-					AddorSubstractPoint(pRail, x);
-			}
+		dtFruit += dt;
+		dtGravity += dt;
 
-			dtFruit += dt;
-			dtGravity += dt;
-			if (dtFruit >= 10)
-			{
-				SpawnFruit();
-				dtFruit = 0;
-			}
+		if (cpuInput.IsActionPressed() || cpuInput.IsAction(1))
+		//if (dtFruit >= 10)
+		{
+			SpawnFruit();
+			dtFruit = 0;
+		}
 
-			if (dtGravity >= 30)
-			{
-				m_gravity += 0.01;
-				dtGravity = 0;
-			}
+		if (dtGravity >= 30)
+		{
+			m_gravity += 0.01;
+			dtGravity = 0;
+		}
 
-			if(m_score<0)
-				cpuEngine.Quit();
+		//if(m_score<0)
+		//	cpuEngine.Quit();
+
 	}
 
 	if (cpuInput.IsBackPressed())
@@ -149,11 +151,16 @@ void App::SpawnFruit()
 
 	cpu_entity* pFruit = cpuEngine.CreateEntity();
 	pFruit->pMesh = &m_meshFruit;
-	pFruit->transform.pos = CenterRail;
-	float angle = PickNumber(0, XM_2PI);
-	pFruit->transform.pos.x += cosf(angle) * 4.f;
-	pFruit->transform.pos.z += sinf(angle) * 4.f;
-	pFruit->transform.pos.y = 10.f;
+
+	cpu_ray m_ray;
+	cpuEngine.GetCursorRay(m_ray);
+	pFruit->transform.pos = m_ray.pos;
+	pFruit->transform.LookTo(m_ray.dir);
+	//pFruit->transform.pos = CenterRail;
+	//float angle = PickNumber(0, XM_2PI);
+	//pFruit->transform.pos.x += cosf(angle) * 4.f;
+	//pFruit->transform.pos.z += sinf(angle) * 4.f;
+	//pFruit->transform.pos.y = 10.f;
 	fruits.push_back(pFruit);
 }
 
