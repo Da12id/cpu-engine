@@ -27,16 +27,14 @@ void App::OnStart()
 	m_height = cpuDevice.GetHeight();
 	m_width = cpuDevice.GetWidth();
 	m_font.Create(cpuDevice.GetHeight() <= 512 ? 14 : 28);
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//m_meshSkyBox.CreateSkyBox(50, CPU_RED);//poourquoi ça fais laguer
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	m_meshSkyBox.CreateSkyBox(50, CPU_MAGENTA);
 	m_meshPlayer.CreateSpaceship();
 	m_meshRail.CreateCircle(4.5f, 20, CPU_BLACK);
 	m_meshRailBis.CreateCircle(3.5f, 20, CPU_RED);
 	m_meshFruit.CreateSphere();
 
-	//pSkyBox = cpuEngine.CreateEntity();
-	//pSkyBox->pMesh = &m_meshSkyBox;
+	pSkyBox = cpuEngine.CreateEntity();
+	pSkyBox->pMesh = &m_meshSkyBox;
 
 	pRail = cpuEngine.CreateEntity();
 	pRail->pMesh = &m_meshRail;
@@ -46,7 +44,7 @@ void App::OnStart()
 	pRailBis->pMesh = &m_meshRailBis;
 	pRailBis->transform.pos.y = 0.1f;
 	pRailBis->transform.pos.z = 5.f;
-	
+
 	CenterRail = pRail->transform.pos;
 
 	m_pPlayer = new Player;
@@ -61,7 +59,7 @@ void App::OnStart()
 	SpawnFruit();
 
 	cpuEngine.GetCamera()->transform.pos.z = -6.0f;
-	cpuEngine.GetCamera()->transform.pos.y= 3.5f;
+	cpuEngine.GetCamera()->transform.pos.y = 3.5f;
 	cpuEngine.GetCamera()->transform.SetYPR(0.f, 0.2f, 0.f);
 
 }
@@ -71,46 +69,46 @@ void App::OnUpdate()
 	// YOUR CODE HERE
 	float dt = cpuTime.delta;
 	float time = cpuTime.total;
-	if(m_pause == false)
+	if (m_pause == false)
 	{
 		if (cpuInput.IsLeft())
 		{
-			m_angle += dt * 3.5f;
+			m_angle += dt * 4.5f;
 		}
 		if (cpuInput.IsRight())
 		{
-			m_angle -= dt * 3.5f;
+			m_angle -= dt * 4.5f;
 		}
-			m_pPlayer->GetEntity()->transform.OrbitAroundAxis(CenterRail, CPU_VEC3_UP, 4.f, m_angle);
+		m_pPlayer->GetEntity()->transform.OrbitAroundAxis(CenterRail, CPU_VEC3_UP, 4.f, m_angle);
 
 
-			for (int x = 0; x < fruits.size(); x++)
-			{
-				fruits[x]->transform.pos.y -= m_gravity;
+		for (int x = 0; x < fruits.size(); x++)
+		{
+			fruits[x]->transform.pos.y -= m_gravity;
 
-				if (cpu::ObbObb(m_pPlayer->GetEntity()->obb, fruits[x]->obb))
-					AddorSubstractPoint(m_pPlayer->GetEntity(), x);
+			if (cpu::ObbObb(m_pPlayer->GetEntity()->obb, fruits[x]->obb))
+				AddorSubstractPoint(m_pPlayer->GetEntity(), x);
 
-				else if (cpu::ObbObb(pRail->obb, fruits[x]->obb))
-					AddorSubstractPoint(pRail, x);
-			}
+			else if (cpu::ObbObb(pRail->obb, fruits[x]->obb))
+				AddorSubstractPoint(pRail, x);
+		}
 
-			dtFruit += dt;
-			dtGravity += dt;
-			if (dtFruit >= 10)
-			{
-				SpawnFruit();
-				dtFruit = 0;
-			}
+		dtFruit += dt;
+		dtGravity += dt;
+		if (dtFruit >= 10)
+		{
+			SpawnFruit();
+			dtFruit = 0;
+		}
 
-			if (dtGravity >= 30)
-			{
-				m_gravity += 0.01;
-				dtGravity = 0;
-			}
+		if (dtGravity >= 30)
+		{
+			m_gravity += 0.01;
+			dtGravity = 0;
+		}
 
-			if(m_score<0)
-				cpuEngine.Quit();
+		if (m_score < 0)
+			cpuEngine.Quit();
 	}
 
 	if (cpuInput.IsBackPressed())
@@ -138,8 +136,8 @@ void App::OnRender(int pass)
 
 	cpuDevice.DrawText(&m_font, textScore.c_str(), 10, 10);
 
-	if(m_pause)
-		cpuDevice.DrawText(&m_font, "PAUSE", m_width*0.5f -30, m_height * 0.5f);
+	if (m_pause)
+		cpuDevice.DrawText(&m_font, "PAUSE", m_width * 0.5f - 30, m_height * 0.5f);
 }
 
 void App::SpawnFruit()
@@ -163,7 +161,7 @@ void App::AddorSubstractPoint(cpu_entity* EntityinCollision, int indexFruits)
 		m_score++;
 	else
 		m_score--;
-	
+
 	fruits[indexFruits]->active = false;
 	fruits.erase(fruits.begin() + indexFruits);
 	SpawnFruit();
