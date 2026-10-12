@@ -67,8 +67,9 @@ private:
 	float m_width;
 
 	float m_angle = 0.f;
+	float m_speed = 4.5f;
 	int m_score = -1;
-	float m_gravity = 0.03f;
+	float m_gravity = 0.01f;
 	float dtFruit = 0;
 	float dtGravity = 0;
 	bool m_pause = false;

@@ -71,13 +71,17 @@ void App::OnUpdate()
 	float time = cpuTime.total;
 	if (m_pause == false)
 	{
+		if (cpuInput.IsDown())
+			m_speed = 6.5f;
+		else
+			m_speed = 4.5f;
 		if (cpuInput.IsLeft())
 		{
-			m_angle += dt * 4.5f;
+			m_angle += dt * m_speed;
 		}
 		if (cpuInput.IsRight())
 		{
-			m_angle -= dt * 4.5f;
+			m_angle -= dt * m_speed;
 		}
 		m_pPlayer->GetEntity()->transform.OrbitAroundAxis(CenterRail, CPU_VEC3_UP, 4.f, m_angle);
 
